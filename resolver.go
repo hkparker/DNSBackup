@@ -35,6 +35,7 @@ func load_domains_from_file(filename string) ([]string, int) {
 	domain_count := 0
 	domains := make([]string, 0)
 	file, error := os.Open(filename)
+	defer file.Close()
 	if error != nil {
 		log.Fatal(error)
 	}
@@ -46,7 +47,6 @@ func load_domains_from_file(filename string) ([]string, int) {
 	if err := scanner.Err(); err != nil {
 		log.Fatal(err)
 	}
-	file.Close()
 	return domains, domain_count
 }
 
@@ -62,11 +62,11 @@ func resolve_to_channel(domain string, output chan AddressPair, done chan int) {
 
 func write_chan_to_file(address_stream chan AddressPair, filename string) {
 	file, error := os.Create(filename)
+	defer file.Close()
 	if error != nil {
 		log.Fatal(error)
 	}
 	for next_address := range address_stream {
 		file.WriteString(fmt.Sprintf("%s\t%s\n", next_address.Address, next_address.IP))
 	}
-	file.Close()
 }
